@@ -1,92 +1,133 @@
 
 # Insiders Clustering
 
-<img src= "img/high-value-customers.png" width= "600" height= "350"> 
+ 1. Context
+
+The company All in One Place is a Multibrand Outlet company, i.e., it sells second line products of various brands at a lower price, through an e-commerce platform. In 1 year of operation, the marketing team realized that some customers in its base buy more expensive products with high frequency and end up contributing with a significant portion of the company's revenue. Based on this perception, the marketing team will launch a loyalty program for the best customers in the base, called Insiders. But the team does not have an advanced knowledge of data analysis to choose the program participants. For this reason, the marketing team asked the data team to select eligible customers for the program, using advanced data manipulation techniques.
+
+# 2. Business Problem
+
+* What is the context like?
+
+    * A Outlet company realized that some expensive buys from some customers are a significant portion of the company's revenue and wants to retain those customers.
+
+* What is the objective?
+
+    * The marketing team wants to retain those customers by lauching a loyalty program, but does not know who exactly they are.
+
+* Who is the Stakeholder of the problem?
+
+    * The marketing team
+
+* How will the solution be?
+
+    * Elaborate a model to cluster this customer category, get some insigths and return a list of customers who will join the Insiders program.
+
+    * Questions to be answered:
+
+        1. Who are the people eligible to join the Insiders program?
+        2. How many customers will be part of the group?
+        3. What are the main characteristics of these customers?
+        4. What is the percentage of revenue contribution coming from the Insiders?
+        5. What is the expected revenue of this group for the next months?
+        6. What are the conditions for a person to be eligible to join Insiders?
+        7. How can a person be removed from the Insiders program?
+        8. What is the guarantee that the Insiders program is better than the rest of the base ?
+        9. What actions can the marketing team take to increase revenue?
 
 
-Project from Data Science Community, mentoring by Meigarom Lopes.
+# 3. Data available
 
-The business problem is selecting customers to create a loyalty program called Insiders.
-A UK-based online retail store has captured the sales data for different products for the period of one year (Nov 2016 to Dec 2017). The organization sells gifts primarily on the online platform. The customers who make a purchase consume directly for themselves. There are small businesses that buy in bulk and sell to other customers through the retail outlet channel.
+Data is available in: https://www.kaggle.com/vik2012kvs/high-value-customers-identification 
+
+Each row represents a sales transaction, which occurred between the period November 2016 and December 2017.
+
+The dataset includes the following information:
+
+* Invoice Number: unique identifier for each transaction.
+* Stock Code Product: code of the item.
+* Description Product: the name of the item.
+* Quantity: The quantity of each item purchased per transaction.
+* Invoice Date: The day the transaction took place.
+* Unit Price: The price of the product per unit.
+* Customer ID: The customer's unique identifier.
+* Country: The name of the country that the customer resides in.
+
+# 4. Business Assumptions
+
+All data was taken from the company's internal sales base between the period November 2016 and December 2017. For this data, some assumptions were made for filling in missing data and filtering:
+
+* If there is no customer_id, the field is filled with a increasing integer ID starting at 19,000.
+* It was considered only transactions where the unit_price is higher than 0.04, to avoid outliers.
+* Unusual stock_code such as 'POST', 'D', 'DOT', 'M', 'S', 'AMAZONFEE', 'm', 'DCGSSBOY', 'DCGSSGIRL', 'PADS', 'B', 'CRUK' were droped.
+* Transactions with country in 'Unspecified', 'European Community' were discarded.
+* Negative numbers in quantity field were considered as returns.
+
+# 5. Machine Learning Metrics
+
+Five data spaces were tested to find the most well defined clusters:
+
+* Original
+* PCA
+* UMAP
+* t-SNE
+* Tree-based embedding
+
+The following metrics were used to choose the best model:
+
+* Silhouette Score
+* Business assumptions
+
+To choose the best data space, the Silhouette Score was used within visual spections when there was just 2 dimensions and the final results obtained on the cluster analysis. In the last cycle, it was decided to use the original data space, because the cluster Insiders created with this space was the best fit for the business problem, as will be shown in the next section.
+
+The models were trained with different values for number of clusters K and its Silhouette Scores were compared to choose the best one and a value for K.
+
+
+It can be seen that there is a tendency to the higher the number of clusters, the higher the Silhouette Score. But there is a limit where to many clusters may no longer help , since it would be extremely difficult to actually identify and embody each of them. It was set to divide the customers into 8 groups, since it has a reasonable Silhouette Score and it is close to RFM groups distribution (10 clusters). The K-Means clustering model was used.
+
+
+The cluster number 0, which we called "Insiders" is the main public for the new program.
+
+# 6. Business Performance
+
+Answering the initial business questions with the obtained clusters:
+
+1. Who are the people eligible to join the Insiders program?
+    * All the customers inside the cluster 0 (Insiders).
+    
+2. How many customers will be part of the group?
+    * 595 customers will be part of the group.
+    
+3. What are the main characteristics of these customers?
+    * Number of customers: 595 (10.44% of all customers)
+    * Mean Gross Revenue: $ 6,316.07
+    * Mean Recency: 75.51
+    * Mean Total Products: 293.83
+    * Mean Frequency: 0.27 purcharses / day
+    * Mean Returns: 231.47
+
+4. What is the percentage of revenue contribution coming from the Insiders?
+    * Insiders' GMV Contribution: 37.19%
+
+5. What is the expected revenue of this group for the next months?
+    * Need to elaborate a time series model
+
+6. What are the conditions for a person to be eligible to join Insiders?
+    * The person has to have similar characteristics to the ones described in question 3 to be eligible, focusing on high gross revenue and quantity of products.
+
+7. How can a person be removed from the Insiders program?
+    * The person has to have different characteristics to the ones described in question 3.
+
+8. What is the guarantee that the Insiders program is better than the rest of the base?
+    * Based on the percentage of revenue contribution and purchase volume, we can see that the Insiders cluster stand out.
+
+9. What actions can the marketing team take to increase revenue?
+    * They can focus on the second cluster with the higher gross revenue and stimulate them to buy more or more expensive products, giving discounts or a special service, to put them closer to the insiders.
+    * Cross Sell to Insiders cluster.
+    
+# 7. Deploy
 
 
 
-# 1. Business Problem.
-Find significant customers for the business who make high purchases of their favorite products. The organization wants to roll out a loyalty program, called Insiders, to the high-value customers after identification of segments.
 
-**Dataset Description** : https://www.kaggle.com/vik2012kvs/high-value-customers-identification
 
-Attribute:     Description
-
-InvoiceNo:      Invoice number (A 6-digit integral number uniquely assigned to each transaction)
- 
-StockCode :     Product (item) code
-
-Description :   Product (item) name
-
-Quantity :      The quantities of each product (item) per transaction
-
-InvoiceDate:    The day when each transaction was generated
-
-UnitPrice:      Unit price (Product price per unit)
-
-CustomerID:     Customer number (Unique ID assigned to each customer)
-
-Country :       Country name (The name of the country where each customer resides)
-
-# 2. Business Assumptions.
-
-- Indicate customers who will be part of a loyalty program called Insiders.
-- What are the main characteristics of these customers?: Ticket, bascket size, high LTV, churn probability,high TVC prevision, purchasing propensity, age, location.
-- How many customers will be part os this group?
-- RFM model (recency, frequency,, monetary): sorted data to have a RFM Score.
-
-# 3. Solution Strategy
-
-**Data Description:** rename columns, check NA values, change types.
-
-**Feature Engineering:** recency, frequency, monetary, gross revenue.
-
-**Cluster Analysis:** Visualization Inspection, UMAP -t-SNE
-<img width="1142" alt="Screen Shot 2022-02-27 at 17 34 27" src="https://user-images.githubusercontent.com/86486485/155898928-fcb23108-9273-4942-a1bc-726c9ba7f34b.png">
-
-**Feature Engineering:** create new attributes based on the original variables using mindmap hypothesis.
-
-**Exploratory Data Analysis (EDA):** univariate and bivariate analysis. Embedding space study with PCA, UMAP, t-SNE, Decision Tree.
-
-**Hyperparameter Fine Tuning:** K-Means, GMM, Hierarchical Clustering.
-<img width="1136" alt="Screen Shot 2022-02-27 at 17 31 05" src="https://user-images.githubusercontent.com/86486485/155898897-680b9f7c-4586-4210-b410-1ab0e3859a71.png">
-
-**Deploy** Database Sqlite: insiders_db.sqlite
-
-# 4. Top 3 Data Insights
-**H1** Insiders cluster has a volume of product purchases above 10% of total purchases.
-
-**True** Insiders cluster has a product purchase volume of 38%
-
-**H2** Insiders cluster has a volume of gross revenue above 10% of total purchases.
-
-**True** Insiders cluster has GMV colume of 41%.
-
-**H5** The GMV of cluster Insiders is concentrated in the 3rd quartile.
-
-**False** The GMV of cluster Insiders is concentrated in the 1rd quartile.
-<img width="1125" alt="Screen Shot 2022-02-27 at 13 15 19" src="https://user-images.githubusercontent.com/86486485/155890296-21473018-6495-4909-a7d3-53f7dc27ddfd.png">
-
-# 5. Machine Learning Model Applied
-<img width="600" alt="Screen Shot 2022-02-27 at 13 16 24" src="https://user-images.githubusercontent.com/86486485/155890327-b1896660-3a58-4a3f-affa-f05da054a871.png">
-
-# 6. Machine Learning Modelo Performance
-<img width="678" alt="Screen Shot 2022-02-27 at 13 17 19" src="https://user-images.githubusercontent.com/86486485/155890354-7b357853-0954-4a04-994f-9a09a6c7ff16.png">
-
-# 7. Business Results
-<img width="918" alt="Screen Shot 2022-02-27 at 13 18 32" src="https://user-images.githubusercontent.com/86486485/155890381-9080fdbf-a728-4e29-88a0-cfcf17f72fa3.png">
-
-# 8. Conclusions
-**Cluster Insiders**
-- Number of Custmers: 495 (25,26% of customers)
-- Average Recency: 77 days
-- Average Purchase: 399
-- Average Revenue: 8311.14 dollars
-- Freuency of Purchase: 0.37 products/day
-- Quantity of Returns: 290
